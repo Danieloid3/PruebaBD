@@ -107,10 +107,9 @@ Base URL: `http://localhost:3000/api`
 | Resource | Routes |
 | --- | --- |
 | `admin` | `POST /reset-schema`, `POST /migrate-data`, `GET /sync-mongo`, `GET /mongo-history` |
-| `patients` | `GET /`, `GET /:id`, `POST /`, `PUT /:id`, `DELETE /:id` |
-| `doctors` | CRUD mirrors patient routes |
-| `appointments` | CRUD + automatic Mongo sync per change |
-| `insurances`, `treatments`, `specialties` | Standard CRUD endpoints |
+| `customers` | `GET /`, `GET /:id`, `POST /`, `PUT /:id`, `DELETE /:id` |
+| `suppliers` | CRUD mirrors customer routes |
+
 
 All responses are JSON. Controllers propagate SQL errors with meaningful HTTP status codes (e.g., FK violations on appointments return 400).
 
