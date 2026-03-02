@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS sale_details CASCADE;
 DROP TABLE IF EXISTS sale CASCADE;
 DROP TABLE IF EXISTS product_supplier CASCADE;
 DROP TABLE IF EXISTS supplier CASCADE;
@@ -5,51 +6,61 @@ DROP TABLE IF EXISTS customer CASCADE;
 DROP TABLE IF EXISTS product CASCADE;
 DROP TABLE IF EXISTS category CASCADE;
 
--- Creación de tablas finales
-CREATE TABLE category (
+-- Tabla de categorías
+CREATE TABLE IF NOT EXISTS category (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL );
+    name VARCHAR(150) NOT NULL UNIQUE
+    );
 
-CREATE TABLE supplier (
+-- Tabla de proveedores
+CREATE TABLE IF NOT EXISTS supplier (
     id SERIAL PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
-    email VARCHAR(150) UNIQUE NOT NULL
-);
+    email VARCHAR(150) NOT NULL UNIQUE
+    );
 
-CREATE TABLE customer (
+-- Tabla de clientes
+CREATE TABLE IF NOT EXISTS customer (
     id SERIAL PRIMARY KEY,
     first_name VARCHAR(150) NOT NULL,
     last_name VARCHAR(150) NOT NULL,
-    email VARCHAR(150) UNIQUE NOT NULL,
-    phone VARCHAR(30),
+    email VARCHAR(150) NOT NULL UNIQUE,
+    phone VARCHAR(20) NOT NULL UNIQUE,
     address TEXT
-);
+    );
 
-CREATE TABLE product (
-    product_sku VARCHAR(20) PRIMARY KEY,
-    name VARCHAR(150) NOT NULL,
-    category_id INT NOT NULL,
-    CONSTRAINT fk_product_category FOREIGN KEY (category_id) REFERENCES category(id)
-);
+-- Tabla de productos
+CREATE TABLE IF NOT EXISTS product (
+    product_sku VARCHAR(150) PRIMARY KEY,
+    product_name VARCHAR(150) NOT NULL,
+    product_price DECIMAL(10,2) NOT NULL CHECK (product_price > 0),
+    product_category_id INT NOT NULL REFERENCES category(id)
+    );
 
-CREATE TABLE product_supplier (
-    unit_price DECIMAL(10,2) NOT NULL,
-    product_sku VARCHAR(20) NOT NULL,
-    supplier_id INT NOT NULL,
-    PRIMARY KEY (product_sku, supplier_id),
-    CONSTRAINT fk_product FOREIGN KEY (product_sku) REFERENCES product(product_sku) ON DELETE CASCADE,
-    CONSTRAINT fk_supplier FOREIGN KEY (supplier_id) REFERENCES supplier(id) ON DELETE CASCADE
-);
+-- Tabla relacional: producto-proveedor
+CREATE TABLE IF NOT EXISTS product_supplier (
+    id SERIAL PRIMARY KEY,
+    product_sku VARCHAR(150) NOT NULL REFERENCES product(product_sku) ON DELETE CASCADE,
+    supplier_id INT NOT NULL REFERENCES supplier(id) ON DELETE CASCADE,
+    unit_price DECIMAL(10,2) NOT NULL CHECK (unit_price > 0),
+    CONSTRAINT product_supplier_unique UNIQUE (product_sku, supplier_id)
+    );
 
-CREATE TABLE sale (
-    id VARCHAR(20) PRIMARY KEY,
-    customer_id INT NOT NULL,
-    supplier_id INT NOT NULL,
-    date TIMESTAMP NOT NULL,
-    total_price NUMERIC(12,2) NOT NULL CHECK (total_price >= 0),
-    product_sku VARCHAR(20) NOT NULL,
-    quantity INT NOT NULL CHECK (quantity >= 0),
-    CONSTRAINT fk_product_supplier FOREIGN KEY (product_sku, supplier_id) REFERENCES product_supplier(product_sku, supplier_id),
-    CONSTRAINT fk_customer FOREIGN KEY (customer_id) REFERENCES customer(id)
+-- Tabla de ventas
+CREATE TABLE IF NOT EXISTS sale(
+    code VARCHAR(20) PRIMARY KEY,
+    date DATE NOT NULL,
+    customer_id INT NOT NULL REFERENCES customer(id) ON DELETE RESTRICT,
+    total DECIMAL(10,2) NOT NULL CHECK (total > 0)
+    );
 
-);
+-- Tabla de detalles de ventas
+CREATE TABLE IF NOT EXISTS sale_details (
+    id SERIAL PRIMARY KEY,
+    sale_code VARCHAR(20) NOT NULL REFERENCES sale(code) ON DELETE CASCADE,
+    product_supplier_id INT NOT NULL REFERENCES product_supplier(id),
+    quantity INT NOT NULL CHECK (quantity > 0),
+    subtotal DECIMAL(10,2) NOT NULL CHECK (subtotal > 0),
+    CONSTRAINT sale_details_unique UNIQUE (sale_code, product_supplier_id)
+    );
+

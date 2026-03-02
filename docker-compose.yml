@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: megastore-postgres
+    environment:
+      POSTGRES_USER: ${PGLOCAL_USER:-postgres}
+      POSTGRES_PASSWORD: ${PGLOCAL_PASSWORD:-postgres}
+      POSTGRES_DB: ${PGLOCAL_DB:-saludplus}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PGLOCAL_USER:-postgres} -d ${PGLOCAL_DB:-saludplus}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mongo:
+    image: mongo:7
+    container_name: megastore-mongo
+    ports:
+      - "28017:27017" # CORREGIDO: Host a la izquierda (28017), Contenedor a la derecha (27017)
+    volumes:
+      - mongodata:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    container_name: saludplus-api
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+    ports:
+      - "${PORT:-3000}:3000"
+    # Para desarrollo: montar código fuente
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+
+volumes:
+  pgdata:
+  mongodata:
