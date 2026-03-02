@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: ${PGLOCAL_PASSWORD:-postgres}
       POSTGRES_DB: ${PGLOCAL_DB:-saludplus}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -22,7 +22,7 @@ services:
     image: mongo:7
     container_name: megastore-mongo
     ports:
-      - "28017:27017" # CORREGIDO: Host a la izquierda (28017), Contenedor a la derecha (27017)
+      - "28018:27017" # CORREGIDO: Host a la izquierda (28017), Contenedor a la derecha (27017)
     volumes:
       - mongodata:/data/db
     healthcheck:
@@ -42,7 +42,7 @@ services:
       mongo:
         condition: service_healthy
     ports:
-      - "${PORT:-3000}:3000"
+      - "${PORT:-3002}:3002"
     # Para desarrollo: montar código fuente
     volumes:
       - .:/usr/src/app
