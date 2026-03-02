@@ -9,7 +9,7 @@ import { connectMongo } from './mongo/connection.js';
 // Rutas
 import adminRoutes from './routes/adminRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
-
+import providerRoutes from './routes/providerRoutes.js';
 
 const app = express();
 
@@ -25,6 +25,7 @@ app.get('/health', (_req, res) => {
 // Routes
 app.use('/api/admin', adminRoutes);
 app.use('/api/customers', customerRoutes);
+app.use('/api/suppliers', providerRoutes);
 
 // Manejo de 404
 app.use((req, res) => {

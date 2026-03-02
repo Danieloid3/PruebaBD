@@ -7,9 +7,9 @@ services:
     environment:
       POSTGRES_USER: ${PGLOCAL_USER:-postgres}
       POSTGRES_PASSWORD: ${PGLOCAL_PASSWORD:-postgres}
-      POSTGRES_DB: ${PGLOCAL_DB:-saludplus}
+      POSTGRES_DB: ${PGLOCAL_DB:-megastore}
     ports:
-      - "5433:5432"
+      - "5435:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -22,7 +22,7 @@ services:
     image: mongo:7
     container_name: megastore-mongo
     ports:
-      - "28018:27017" # CORREGIDO: Host a la izquierda (28017), Contenedor a la derecha (27017)
+      - "29018:27017"
     volumes:
       - mongodata:/data/db
     healthcheck:
