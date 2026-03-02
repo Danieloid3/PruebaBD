@@ -33,7 +33,7 @@ services:
 
   api:
     build: .
-    container_name: saludplus-api
+    container_name: megastore-api
     env_file:
       - .env
     depends_on:

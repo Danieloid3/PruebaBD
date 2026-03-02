@@ -62,16 +62,17 @@ ON CONFLICT (product_sku, supplier_id) DO NOTHING;
 -- 6. NORMALIZAR VENTAS
 
 INSERT INTO sale (code, date, customer_id, total)
-SELECT DISTINCT
+SELECT
     s.transaction_id as code,
     s.date::DATE as date,
     c.id as customer_id,
-    s.total_line_value as total
+    SUM(s.total_line_value) as total
 FROM staging_megastore s
 INNER JOIN customer c ON c.email = s.customer_email
 WHERE s.transaction_id IS NOT NULL AND s.transaction_id != ''
   AND s.date IS NOT NULL
   AND s.customer_email IS NOT NULL AND s.customer_email != ''
+GROUP BY s.transaction_id, s.date::DATE, c.id
 ON CONFLICT (code) DO NOTHING;
 
 
